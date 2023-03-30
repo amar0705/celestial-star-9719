@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Kings & Knights</title>
+    <meta name="description" content="Chess application" />
+
+    <link
+      href="http://fonts.googleapis.com/css?family=Droid+Sans"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link href="styles.css?v3" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="banner-logo">
+        <img src="./images/logo.jpg" alt="logo" />
+      </div>
+      <div id="container" class="clearfix"></div>
+      <div id="banner-logo">
+        <img src="./images/logo.jpg" alt="logo" />
+      </div>
+    </div>
+  </body>
+</html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="scripts/settings.js?v2"></script>
+<script src="scripts/OnlineChess.js"></script>
+<script src="scripts/design.js?v3"></script>
+<script>
+  CHESSAPP.GamePlay.init(gameSettings);
+</script>
