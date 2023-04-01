@@ -1,12 +1,14 @@
 {
-  "name": "celestial-star-9719",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon index.js"
+  "name": "chess",
+  "version": "0.0.1",
+  "dependencies": {
+    "package.json": "^2.0.1",
+    "socket.io": "2.3.0"
   },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/amar0705/celestial-star-9719.git"
@@ -18,11 +20,5 @@
     "url": "https://github.com/amar0705/celestial-star-9719/issues"
   },
   "homepage": "https://github.com/amar0705/celestial-star-9719#readme",
-  "dependencies": {
-    "express": "^4.18.2",
-    "nodemon": "^2.0.22",
-    "package.json": "^2.0.1",
-    "socket.io": "^4.6.1",
-    "websocket": "^1.0.34"
-  }
+  "description": ""
 }
