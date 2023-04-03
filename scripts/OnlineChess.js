@@ -2,7 +2,7 @@ CHESSAPP.onlinePlay = {
   sk: null,
   connect: function (stg, callback) {
     let op = CHESSAPP.onlinePlay;
-    let hostPort = "http://localhost:" + CHESSAPP.globalSettings.port;
+    let hostPort = "https://chess-2par.onrender.com/";
     if (CHESSAPP.globalSettings.live) {
       hostPort = CHESSAPP.globalSettings.host;
     }
