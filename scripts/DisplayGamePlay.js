@@ -1,17 +1,26 @@
 CHESSAPP.GamePlay = (function () {
   let that = {},
     pieceGettingPromoted = null;
+
+  // Array to store the chess pieces
   that.pieces = [];
+
+  // 2D array to store the cells of the chessboard
   that.cells;
+
+  // Array to store the list of moves made in the game
   that.moveList = [];
   let _settings;
   let options = [],
     overrides = {},
     selectedPieceIndex = -1;
+
+  // Function to convert a number to a file character (a-h)
   let toFile = function (num) {
-    console.log(65 + num);
     return String.fromCharCode(96 + parseInt(num));
   };
+
+  // Function to convert a piece type to its abbreviation
   let toAbbr = function (pieceType) {
     switch (pieceType) {
       case "pawn":
@@ -34,14 +43,19 @@ CHESSAPP.GamePlay = (function () {
         break;
     }
   };
+
+  // Function to get the current turn color
   that.getTurn = function () {
     return _settings.turn;
   };
+
+  // Function to add a move to the move list and update the UI
   that.addToMoveList = function (move) {
     let tos = "";
     that.moveList.push(move);
+
+    // Construct the move notation string
     if (move.promotion) {
-      console.log("HERE");
       tos += toFile(parseInt(move.fromX) + 1);
       tos += 8 - parseInt(move.toY);
       tos += "=";
@@ -57,22 +71,31 @@ CHESSAPP.GamePlay = (function () {
       tos += toFile(parseInt(move.toX) + 1);
       tos += 8 - parseInt(move.toY);
     }
+
+    // Update the UI with the move notation
     CHESSAPP.ui.addMove(tos);
-    console.log("Move notation: " + tos);
   };
+
+  // Function to update the game status
   that.statusUpdate = function (stg) {
     CHESSAPP.ui.statusUpdate(stg);
   };
+
+  // Function to set the online player's color
   that.setOnlineColor = function (color) {
     if (color == "W" || color == "B") {
       _settings.onlineColor = color;
     }
   };
+
+  // Function to send a move to the opponent
   that.sendMove = function (move) {
     if (_settings.online && move) {
       CHESSAPP.onlinePlay.sendMove(move);
     }
   };
+
+  // Function to switch the turn
   that.switchTurn = function () {
     if (_settings.turn == "W") {
       _settings.turn = "B";
@@ -80,6 +103,8 @@ CHESSAPP.GamePlay = (function () {
       _settings.turn = "W";
     }
   };
+
+  // Event handler for when a chess piece is clicked
   that.pieceClicked = function (piece) {
     let color = piece.color;
     if (color != _settings.turn) {
@@ -88,6 +113,8 @@ CHESSAPP.GamePlay = (function () {
     if (_settings.online && _settings.onlineColor != _settings.turn) {
       return;
     }
+
+    // Function to clear all option styles from the chessboard
     that.clearAllOptionStyles();
     selectedPieceIndex = that.pieces.indexOf(piece);
     let pieceOptions = options[selectedPieceIndex];
@@ -109,6 +136,8 @@ CHESSAPP.GamePlay = (function () {
           local: true,
           special: opt.special,
         };
+
+        // Function to move a piece to the specified position
         that.movePieceTo(moveOptions);
       }
     }
@@ -132,6 +161,9 @@ CHESSAPP.GamePlay = (function () {
     }
     return inCheck;
   };
+
+  // Function to initialize the game
+
   that.init = function (userSettings) {
     _settings = {
       containerID: "chessboard",
@@ -144,7 +176,6 @@ CHESSAPP.GamePlay = (function () {
     CHESSAPP.utils.extend(_settings, userSettings);
     let container = document.getElementById(_settings["containerID"]);
     if (container == null) {
-      console.log("container element not found with id: " + _settings["containerID"]);
       return false;
     }
     let p = {
@@ -154,16 +185,13 @@ CHESSAPP.GamePlay = (function () {
     that.cells = CHESSAPP.ui.init(p);
     that.lock();
     CHESSAPP.ui.onInitialChoice(function (pref) {
-      console.log(pref);
       if (pref.hasOwnProperty("color")) {
         _settings.preferredColor = pref.color;
       }
       if (pref.hasOwnProperty("online")) {
         _settings.online = pref.online;
       }
-      console.log(_settings);
       if (_settings.online) {
-        console.log("connecting...");
         CHESSAPP.onlinePlay.connect(_settings, function () {
           that.setUpBoard.apply(that);
         });
@@ -174,6 +202,7 @@ CHESSAPP.GamePlay = (function () {
     });
   };
   that.lock = function (stg) {};
+  // Setting up the Chess Board
   that.setUpBoard = function () {
     if (that.pieces) {
       delete that.pieces;
@@ -305,6 +334,8 @@ CHESSAPP.GamePlay = (function () {
       }
     }
   };
+
+  // Update the options
   that.updateOptions = function () {
     let response = CHESSAPP.Analyzer.makeAllOptions({ pieces: that.pieces }),
       currentColor = _settings.turn,
@@ -312,8 +343,6 @@ CHESSAPP.GamePlay = (function () {
       check = false,
       checkmate = false;
     options = response.allOptions;
-    console.log("Options recieved: ");
-    console.log(options);
     for (let i = 0; i < options.length; i++) {
       if (!that.pieces[i]) {
         continue;
@@ -326,9 +355,13 @@ CHESSAPP.GamePlay = (function () {
         }
       }
     }
+
+    // check
     if (response.kingInCheck) {
       check = response.kingInCheck;
     }
+
+    // check stalemate and check
     if (stalemate && check) {
       checkmate = check;
     }
@@ -355,14 +388,14 @@ CHESSAPP.GamePlay = (function () {
         type = "s";
       }
     }
+
+    // display message in case of check, checkmate or stalemate
     if (check || checkmate || stalemate) {
       that.statusUpdate({ msg: msg, type: type });
     }
-    console.log("Status : ");
-    console.log("Check : " + check);
-    console.log("Stalemate : " + stalemate);
-    console.log("Checkmate : " + checkmate);
   };
+
+  // Function to move a piece to the specified position
   that.movePieceTo = function (stg) {
     let piece = stg.piece,
       x = stg.x,
@@ -379,12 +412,15 @@ CHESSAPP.GamePlay = (function () {
         toX: x,
         toY: y,
       };
+
     if (_settings.locked == true) {
       return false;
     }
+
     if (!that.isOption(piece, cell)) {
       return false;
     }
+
     if (stg.local) {
       if (piece.pieceType == "pawn" && (y == 0 || y == 7)) {
         let cb = function () {
@@ -395,8 +431,8 @@ CHESSAPP.GamePlay = (function () {
         return;
       }
     }
+
     if (stg.special != null) {
-      console.log("Special move!", stg.special);
       if (stg.special.type == "en") {
         pieceAtLocation = CHESSAPP.Analyzer.pieceExists({
           pieces: that.pieces,
@@ -404,7 +440,7 @@ CHESSAPP.GamePlay = (function () {
           y: stg.special.eny,
         });
       } else if (stg.special.type == "castle") {
-        console.log("Castling");
+        // Perform castling move
         let rook = CHESSAPP.Analyzer.pieceExists({
           pieces: that.pieces,
           x: stg.special.rookx,
@@ -422,10 +458,10 @@ CHESSAPP.GamePlay = (function () {
         moveData.killed = true;
         that.killPiece(pieceAtLocation);
       } else {
-        console.log("Invalid move cannot move on another piece of same color");
         return;
       }
     }
+
     if (stg.local) {
       let params = { pieceX: piece.x, pieceY: piece.y, newX: x, newY: y, special: stg.special };
       if (stg.promotion) {
@@ -484,8 +520,8 @@ CHESSAPP.GamePlay = (function () {
         }
       }
     });
+
   that.onlineMove = function (data) {
-    console.log(data);
     let pieceMoved = CHESSAPP.Analyzer.pieceExists({
       pieces: that.pieces,
       x: data.pieceX,
@@ -504,6 +540,8 @@ CHESSAPP.GamePlay = (function () {
       });
     }
   };
+
+  // adding chat messages
   that.chatMessage = function (stg) {
     if (!stg.msg) {
       return;
@@ -516,10 +554,13 @@ CHESSAPP.GamePlay = (function () {
   };
   return that;
 })();
+
+// Adding scroller for recent message display
 let statusScroller = function (stg) {
   if (this == window) {
     return new statusScroller(stg);
   }
+
   let lineHeight = 0,
     offset = 0,
     maxLines = stg.maxLines,
@@ -541,6 +582,7 @@ let statusScroller = function (stg) {
       CHESSAPP.utils.addClass(containerElem, "upDisabled");
     }
   };
+
   this.move = function (up) {
     if (stg.scroll) {
       return;
@@ -564,6 +606,7 @@ let statusScroller = function (stg) {
     windowElem.style.top = offset * lineHeight + "px";
     this.updateClasses();
   };
+
   this.goToBottom = function () {
     if (stg.scroll) {
       containerElem.scrollTop = containerElem.scrollHeight;
@@ -575,6 +618,7 @@ let statusScroller = function (stg) {
     }
     this.updateClasses();
   };
+
   this.add = function (stg) {
     let def = {
         msg: "",

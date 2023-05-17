@@ -1,4 +1,5 @@
 CHESSAPP.Analyzer = {
+  // Castling information for both white and black kings
   castlingInfo: {
     W: {
       left: false,
@@ -9,6 +10,8 @@ CHESSAPP.Analyzer = {
       right: false,
     },
   },
+
+  // Generates all possible move options for the given settings
   makeAllOptions: function (settings) {
     let stg = {
       pieces: null,
@@ -24,8 +27,13 @@ CHESSAPP.Analyzer = {
       kingInCheck: false,
       allOptions: [],
     };
+
     let r, whiteKingIndex, blackKingIndex;
+    // Iterate over all the pieces
+
     for (let i = 0; i < pieces.length; i++) {
+      // Find the indices of white and black kings
+
       if (pieces[i] && pieces[i].pieceType == "king") {
         if (pieces[i].color == "W") {
           whiteKingIndex = i;
@@ -33,9 +41,13 @@ CHESSAPP.Analyzer = {
           blackKingIndex = i;
         }
       }
+
+      // Reset the justMoved flag for the current piece
       if (pieces[i] && CHESSAPP.GamePlay.getTurn() == pieces[i].color) {
         pieces[i].justMoved = false;
       }
+
+      // Get the options for the current piece
       r = this.getOptions({ pieces: pieces, piece: pieces[i], checkTest: false });
       if (r && r.checkDetected) {
         if (r.checkDetected) {
@@ -44,6 +56,8 @@ CHESSAPP.Analyzer = {
       }
       resp.allOptions.push(r.pieceOptions);
     }
+
+    // Check for checkmate or stalemate for the white king
     if (resp.kingInCheck != "W") {
       r = this.getOptions({
         pieces: pieces,
@@ -56,9 +70,10 @@ CHESSAPP.Analyzer = {
           resp.kingInCheck = r.checkDetected;
         }
       }
-      console.log("HERE : ", r);
       resp.allOptions[whiteKingIndex] = resp.allOptions[whiteKingIndex].concat(r.pieceOptions);
     }
+
+    // Check for checkmate or stalemate for the black king
     if (resp.kingInCheck != "B") {
       resp.allOptions.push(r.pieceOptions);
       r = this.getOptions({
@@ -77,6 +92,8 @@ CHESSAPP.Analyzer = {
     resp.allOptions.push(r.pieceOptions);
     return resp;
   },
+
+  // Checks if the given color is in check
   checkTest: function (settings) {
     let stg = {
       pieces: null,
@@ -93,6 +110,8 @@ CHESSAPP.Analyzer = {
     }
     return false;
   },
+
+  // Gets all possible move options for a piece
   getOptions: function (settings) {
     let stg = {
       pieces: null,
@@ -107,9 +126,13 @@ CHESSAPP.Analyzer = {
       checkDetected: false,
       pieceOptions: null,
     };
+
+    // Skip if the piece is not present or its color is different from the current turn
     if (!piece) {
       return resp;
     }
+
+    // Initialize an emoty array of options
     let pieceOptions = [],
       curx = parseInt(piece.x),
       cury = parseInt(piece.y),
@@ -127,12 +150,13 @@ CHESSAPP.Analyzer = {
         checkTest: stg.checkTest,
         special: s,
       });
+
       if (r.checkDetected) {
         resp.checkDetected = r.checkDetected;
       }
+
       if (r.valid) {
         if (stg.castleTest) {
-          console.log("Adding castle", r);
         }
         if (!stg.checkTest) {
           if (piece.color == "B") {
@@ -153,6 +177,7 @@ CHESSAPP.Analyzer = {
       }
       return r.canMovePast;
     };
+
     let flip = color == "B" ? 1 : -1;
     switch (type) {
       case "pawn":
@@ -271,15 +296,11 @@ CHESSAPP.Analyzer = {
             mk(curx + 2, cury, true, false, special);
           }
           if (leftCastle && !stg.checkTest) {
-            console.log(leftCastle + " for castling color " + piece.color + " left");
           } else if (!leftCastle && !stg.checkTest) {
-            console.log(leftCastle + " for castling color " + piece.color + " left");
           }
 
           if (rightCastle && !stg.checkTest) {
-            console.log(rightCastle + " for castling color " + piece.color + " right");
           } else if (!rightCastle && !stg.checkTest) {
-            console.log(rightCastle + " for castling color " + piece.color + " right");
           }
         } else {
           mk(curx - 1, cury + 1, true, true);
@@ -403,8 +424,6 @@ CHESSAPP.Analyzer = {
         checkTest: stg.checkTest,
       });
       if (!stg.checkTest) {
-        console.log("Checking en passant piece");
-        console.log(pieceExists);
       }
     } else if (special.type == "castle") {
       resp.movable = true;
